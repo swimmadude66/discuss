@@ -1,0 +1,14 @@
+node_modules/
+dist/
+reports/
+monitor/
+build/
+.scannerwork/
+.nyc_output/
+.vscode/
+.env
+.results
+results
+stats.json
+src/client/build
+BrowserStackLocal

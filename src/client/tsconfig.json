@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "outDir": "../../build/client",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "noEmitHelpers": true,
+        "importHelpers": true,
+        "noEmitOnError": true,
+        "lib": [
+            "es6",
+            "dom",
+            "es2015.iterable"
+        ],
+        "typeRoots": [
+            "../../node_modules/@types"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@components/*": ["components/*", "components/"],
+            "@directives/*": ["directives/*", "directives/"],
+            "@core/*": ["core/*", "core/"],
+            "@guards/*": ["guards/*", "guards/"],
+            "@models/*": ["models/*", "models/"],
+            "@modules/*": ["modules/*"],
+            "@pipes/*": ["pipes/*", "pipes/"],
+            "@services/*": ["services/*", "services/"],
+            "@resolvers/*": ["resolvers/*", "resolvers/"],
+            "@mock_data/*": ["tests/mock_data/*", "tests/mock_data/"],
+            "@environments/*": ["environments/*"]
+        }
+    }
+}
