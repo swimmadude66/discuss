@@ -1,0 +1,16 @@
+<div class="card">
+    <div class="votes">
+        <p class="vote-count">
+            {{post?.Votes}}
+        </p>
+    </div>
+    <div class="content">
+        <p class="post-title">
+            {{post?.Title}}
+        </p>
+        <p class="post-body">
+            {{post?.Body}}
+        </p>
+        <a class="view-replies" [routerLink]="['/posts/', post?.PostId]">view replies</a>
+    </div>
+</div>

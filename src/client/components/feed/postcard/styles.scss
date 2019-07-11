@@ -1,0 +1,38 @@
+@import '_variables';
+
+.card {
+    width: 100%;
+    display: flex;
+    border: 0.1rem solid $divider-color;
+    align-content: center;
+
+    .votes {
+        flex: 0 0 5rem;
+        font-size: 1.6rem;
+        line-height: 2rem;
+        color: $disabled-text;
+    }
+
+    .content {
+        flex: 100 1 auto;
+        padding: 1rem;
+
+        .post-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            line-height: 2rem;
+            padding: 0;
+            margin: 0;
+            color: #000;
+        }
+
+        .post-body {
+            font-size: 1.6rem;
+            font-weight: 400;
+            line-height: 2rem;
+            padding: 0;
+            margin: 0;
+            color: $disabled-text;
+        }
+    }
+}

@@ -1,2 +1,2 @@
-export * from './demo';
+export * from './post';
 export * from './shared/index';

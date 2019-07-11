@@ -10,8 +10,6 @@
     min-height: 5rem;
     max-height: 10rem;
     padding: 1rem 2rem;
-    background-position: 0.5rem 50%;
-    background-size: 3rem 3rem;
     background-repeat: no-repeat;
 
     &.dismissable {
@@ -20,23 +18,19 @@
 
     &.error-toast {
         background-color: #ef2054; // <-- base error color was too pink
-        background-image: url('/assets/images/alert-icon-flat.svg');
     }
 
     &.warning-toast {
         background-color: $warning-color;
-        background-image: url('/assets/images/alert-icon-flat.svg');
     }
 
     &.info-toast {
         background-color: $info-color;
-        background-image: url('/assets/images/Steady-Logo-Icon-Flat.svg');
         color: #fff;
     }
 
     &.success-toast {
         background-color: $success-color;
-        background-image: url('/assets/images/check-flat.svg');
     }
 
     .toast-content {

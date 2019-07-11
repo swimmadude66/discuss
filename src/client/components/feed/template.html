@@ -1,0 +1,13 @@
+<div class="container">
+    <div class="row size-limited create-row">
+        <div class="col-xs-12 col-md-6">
+            <a class="create-link" [routerLink]="['/posts/new']">Create a post</a>
+        </div>
+    </div>
+
+    <div class="row size-limited" *ngFor="let post of posts;">
+        <div class="card-container">
+            <post-card [post]="post"></post-card>
+        </div>
+    </div>
+</div>
