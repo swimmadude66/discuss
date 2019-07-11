@@ -5,6 +5,7 @@ import {Config} from '../models/config';
 
 module.exports = (APP_CONFIG: Config) => {
     const router = Router();
+    const logger = APP_CONFIG.logger;
     const sessionManager = APP_CONFIG.sessionManager;
 
     router.use((req, res, next) => {
@@ -16,6 +17,7 @@ module.exports = (APP_CONFIG: Config) => {
             return next();
         }
         let accessToken;
+        // Check for auth header, used for secure webviews and server-side rendering
         if (req.headers.authorization && req.headers.authorization.length) {
             let auth = Array.isArray(req.headers.authorization) ? req.headers.authorization[0] : req.headers.authorization;
             const authParts = auth.split('|', 2);
@@ -35,19 +37,22 @@ module.exports = (APP_CONFIG: Config) => {
                 }
             }
         }
+        // prefer signed cookies if present
         if (!accessToken && req.signedCookies && req.signedCookies[APP_CONFIG.cookie_name]) {
             accessToken = req.signedCookies[APP_CONFIG.cookie_name];
         }
+        // otherwise, assume no-auth
         if (!accessToken) {
             delete res.locals.auth;
             delete res.locals.session;
             return next();
         }
+        // update user's session
         sessionManager.getUserSession(accessToken)
         .pipe(
             tap(result => {
                 if (result && result.SessionKey) {
-                    sessionManager.updateAccess(result.SessionKey).subscribe(_ => _, err=> console.error(err));
+                    sessionManager.updateAccess(result.SessionKey).subscribe(_ => _, err=> logger.logError(err));
                 }
             })
         )
@@ -59,7 +64,7 @@ module.exports = (APP_CONFIG: Config) => {
                 res.locals.usersession = result;
                 return next();
             }, err => {
-                console.error(err);
+                logger.logError(err);
                 return next();
             }
         );

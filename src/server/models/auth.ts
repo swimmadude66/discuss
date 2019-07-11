@@ -1,6 +1,6 @@
 export interface UserSession {
-    UserId: number;
-    Email: string;
+    UserId: string; // User Id
+    Email?: string;
     SessionKey: string;
     Expires: number;
 }
@@ -11,5 +11,6 @@ export interface SessionInfo {
     Expires: number;
     UserAgent?: string;
     Created?: Date;
-    LastAccessed?: Date;
+    LastUsed?: number; // unix timestamp from db
+    LastAccess?: Date; // Date for use in model
 }

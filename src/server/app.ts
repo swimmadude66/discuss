@@ -17,6 +17,8 @@ import {DatabaseService} from './services/db';
 import {SessionManager} from './services/session';
 import {HelpersService} from './services/helpers';
 import {LoggingService} from './services/logger';
+import {AuthService} from './services/auth';
+import {CryptoService} from './services/crypto';
 
 dotenv.config({silent: true});
 const APP_CONFIG: Config = {
@@ -124,6 +126,9 @@ if (cluster.isMaster) {
     APP_CONFIG.db = db;
     const sessionManager = new SessionManager(db);
     APP_CONFIG.sessionManager = sessionManager;
+    const cryptoService = new CryptoService();
+    const auth = new AuthService(cryptoService, db);
+    APP_CONFIG.authService = auth;
 
     app.use(require('./middleware/auth')(APP_CONFIG));
 

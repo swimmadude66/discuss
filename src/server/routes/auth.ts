@@ -1,7 +1,4 @@
 import {Router} from 'express';
-import {createHash} from 'crypto';
-import * as uuid from 'uuid/v4';
-import {Observable} from 'rxjs';
 import {flatMap, switchMap} from 'rxjs/operators';
 import {Config} from '../models/config';
 
@@ -14,19 +11,18 @@ const COOKIE_OPTIONS = {
 
 module.exports = (APP_CONFIG: Config) => {
     const router = Router();
-    const db = APP_CONFIG.db;
+    const logger = APP_CONFIG.logger;
     const sessionManager = APP_CONFIG.sessionManager;
+    const auth = APP_CONFIG.authService;
 
     router.post('/signup', (req, res) => {
         const body = req.body;
         if (!body || !body.Email || !body.Password) {
             return res.status(400).send('Email and Password are required fields');
         } else {
-            const salt = uuid().replace(/-/ig, '');
-            const passHash = createHash('sha512').update(`${salt}|${body.Password}`).digest('hex');
-            db.query('Insert into `users` (`Email`, `Salt`, `PassHash`, `Active`) VALUES(?, ?, ?, 1);', [body.Email, salt, passHash])
+            auth.signupWithPassword(body.Email, body.Password, 'argon2')
             .pipe(
-                flatMap(result => sessionManager.createSession(result.insertId, JSON.stringify(res.useragent)))
+                flatMap(userId => sessionManager.createSession(userId, JSON.stringify(res.useragent)))
             )
             .subscribe(
                 result => {
@@ -34,8 +30,8 @@ module.exports = (APP_CONFIG: Config) => {
                     return res.send();
                 },
                 err => {
-                    console.error(err);
-                    res.status(400).send('Could not complete signup');
+                    logger.logError(err);
+                    res.status(400).send({Error: 'Could not complete signup'});
                 }
             );
         }
@@ -46,22 +42,9 @@ module.exports = (APP_CONFIG: Config) => {
         if (!body || !body.Email || !body.Password) {
             return res.status(400).send('Email and Password are required fields');
         } else {
-            db.query('Select `PassHash`, `UserId`, `Salt` from `users` where `Active`=1 AND `Email`=? LIMIT 1;', [body.Email])
+            auth.loginWithPassword(body.Email, body.Password, 'argon2')
             .pipe(
-                switchMap(
-                    (users: any[]) => {
-                        let user = {UserId: -100, PassHash: '12345', Salt: '12345'}; // use a fake user which will fail to avoid timing differences indicating existence of real users.
-                        if (users.length > 0) {
-                            user = users[0]
-                        }
-                        const compHash = createHash('sha512').update(`${user.Salt}|${body.Password}`).digest('hex');
-                        if (compHash === user.PassHash) {
-                            return sessionManager.createSession(user.UserId, JSON.stringify(res.useragent));
-                        } else {
-                            return Observable.throw('Incorrect username or password');
-                        }
-                    }
-                )
+                switchMap(userId => sessionManager.createSession(userId, JSON.stringify(req.useragent)))
             ).subscribe(
                 result => {
                     res.cookie(APP_CONFIG.cookie_name, result.SessionKey, {...COOKIE_OPTIONS, expires: new Date(result.Expires * 1000), secure: req.secure});
@@ -69,10 +52,10 @@ module.exports = (APP_CONFIG: Config) => {
                 },
                 err => {
                     if (err === 'Incorrect username or password') {
-                        return res.status(400).send('Incorrect username or password');
+                        return res.status(400).send({Error: 'Incorrect username or password'});
                     } else {
-                        console.error(err);
-                        return res.status(500).send('Could not login at this time');
+                        logger.logError(err);
+                        return res.status(500).send({Error: 'Could not login at this time'});
                     }
                 }
             )
@@ -91,8 +74,8 @@ module.exports = (APP_CONFIG: Config) => {
         .subscribe(
             sessions => res.send(sessions),
             err => {
-                console.error(err);
-                res.status(500).send('Cannot fetch active sessions');
+                logger.logError(err);
+                res.status(500).send({Error: 'Cannot fetch active sessions'});
             }
         )
     });
@@ -109,7 +92,7 @@ module.exports = (APP_CONFIG: Config) => {
                         }
                         return res.send(success);
                     } else {
-                        return res.status(400).send('Could not find that session');
+                        return res.status(400).send({Error: 'Could not find that session'});
                     }
                 }  
             )
@@ -123,7 +106,7 @@ module.exports = (APP_CONFIG: Config) => {
             .subscribe(
                 _ => res.send(true),
                 err => {
-                    console.error(err);
+                    logger.logError(err);
                     res.send(true);
                 }
             );

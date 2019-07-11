@@ -1,6 +1,7 @@
 import {DatabaseService} from '../services/db';
 import {SessionManager} from '../services/session';
 import {LoggingService} from '../services/logger';
+import {AuthService} from '../services/auth';
 
 export interface Config {
     environment: string;
@@ -11,7 +12,8 @@ export interface Config {
     client_root: string;
     max_workers: number;
     universal: boolean;
+    logger?: LoggingService;
     db?: DatabaseService;
     sessionManager?: SessionManager;
-    logger?: LoggingService;
+    authService?: AuthService;
 }
