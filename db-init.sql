@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `PostId` varchar(64) NOT NULL,
   `PosterId` varchar(64) NOT NULL,
   `ParentId` varchar(64) DEFAULT NULL,
-  `Title` varchar(256) NOT NULL,
+  `Title` varchar(256) DEFAULT NULL,
   `PostDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `Body` longtext,
   `RootId` varchar(64) DEFAULT NULL,

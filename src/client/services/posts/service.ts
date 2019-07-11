@@ -36,8 +36,8 @@ export class PostsService {
         return this._http.post<Post>('/api/posts', {Title: title, Body: body});
     }
 
-    createReply(rootId: string, parentId: string, title: string, body: string): Observable<Reply> {
-        return this._http.post<Reply>(`/api/posts/${parentId}/reply`, {RootId: rootId, Title: title, Body: body});
+    createReply(rootId: string, parentId: string, body: string): Observable<Reply> {
+        return this._http.post<Reply>(`/api/posts/${parentId}/reply`, {RootId: rootId, Body: body});
     }
 
     voteForPost(postId: string, score: number): Observable<any> {

@@ -80,9 +80,9 @@ export class PostService {
         );
     }
 
-    createReply(rootId: string, parentId: string, userId: string, title: string, body: string): Observable<Reply> {
-        if (!userId.length || !title.length || !body.length || !parentId.length) {
-            return throwError({Status: 400, Error: 'ParentId, UserId, Title, and Body are required'});
+    createReply(rootId: string, parentId: string, userId: string, body: string): Observable<Reply> {
+        if (!userId.length ||  !body.length || !parentId.length) {
+            return throwError({Status: 400, Error: 'ParentId, UserId, and Body are required'});
         }
         const postId = uuid();
         return this._db.query<{PostId: string, Score: number}[]>('Select `PostId`, `Score` from `post_votes` Where `PostId` in (?) && `VoterId`=?;', [[parentId, rootId], userId])
@@ -96,8 +96,8 @@ export class PostService {
                 if (!root || !parent || !parent.Score || !root.Score || root.Score !== 1 || parent.Score !== 1) {
                     return throwError({Status: 400, Error: 'You must upvote this post and this reply to continue the discussion'});
                 }
-                const q  = 'Insert into `posts` (`PostId`, `PosterId`, `Title`, `Body`, `ParentId`) VALUES (?,?,?,?,?);';
-                return this._db.query(q, [postId, userId, title, body, parentId])
+                const q  = 'Insert into `posts` (`PostId`, `PosterId`, `Body`, `ParentId`) VALUES (?,?,?,?,?);';
+                return this._db.query(q, [postId, userId, body, parentId])
             }),
             map(_ => {
                 const post: Reply = {
@@ -106,7 +106,6 @@ export class PostService {
                     PosterId: userId,
                     ParentId: parentId,
                     RootId: rootId,
-                    Title: title,
                     Body: body,
                     PostDate: new Date(),
                     Votes: 0,
@@ -202,7 +201,7 @@ export class PostService {
                 if (!results || results.length < 1) {
                     return throwError({Status: 404, Error: 'Cannot find post'});
                 }
-                const rootPost = results.find(r => r.PostId === postId);
+                const rootPost: Post = (results.find(r => r.PostId === postId) as Post);
                 if (!rootPost) {
                     return throwError({Status: 404, Error: 'Cannot find post'});
                 }

@@ -1,7 +1,6 @@
 export interface BasePost {
     PostId: string; // Id of post/comment
     PosterId: string; // userId of poster
-    Title: string;
     PostDate: Date;
     Votes: number;
     Body: string;
@@ -13,6 +12,7 @@ export type PostType = 'post' | 'reply';
 
 export interface Post extends BasePost {
     Type: 'post';
+    Title: string;
 }
 
 export interface Reply extends BasePost {

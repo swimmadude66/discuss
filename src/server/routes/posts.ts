@@ -92,10 +92,10 @@ module.exports = (APP_CONFIG: Config) => {
             return res.status(401).send({Error: 'Not logged in'});
         }
         const body = req.body;
-        if (!body || !body.RootId || !body.Title || !body.Body) {
-            return res.status(400).send({Error: 'RootId, Title, and Body are required parameters'});
+        if (!body || !body.RootId || !body.Body) {
+            return res.status(400).send({Error: 'RootId and Body are required parameters'});
         }
-        postService.createReply(body.RootId, req.params.postId, usersession.UserId, body.Title, body.Body)
+        postService.createReply(body.RootId, req.params.postId, usersession.UserId, body.Body)
         .subscribe(
             reply => res.send(reply),
             err => {
