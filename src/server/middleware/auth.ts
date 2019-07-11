@@ -44,7 +44,7 @@ module.exports = (APP_CONFIG: Config) => {
         // otherwise, assume no-auth
         if (!accessToken) {
             delete res.locals.auth;
-            delete res.locals.session;
+            delete res.locals.usersession;
             return next();
         }
         // update user's session

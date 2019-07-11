@@ -11,7 +11,7 @@
 
     .offline-banner {
         background-color: $main-color;
-        flex: 1 1 $banner-height;
+        flex: 0 1 $banner-height;
         .offline-text {
             color: #000;
             font-size: 1.6rem;

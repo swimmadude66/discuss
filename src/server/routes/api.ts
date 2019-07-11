@@ -8,15 +8,16 @@ module.exports = (APP_CONFIG: Config) => {
     router.use('/auth', require('./auth')(APP_CONFIG));
 
     // AuthGate
-    // router.use((req, res, next) => {
-    //     if (!res.locals.usersession) {
-    //         return res.status(401).send('Unauthenticated');
-    //     } else {
-    //         return next();
-    //     }
-    // });
+    router.use((req, res, next) => {
+        if (!res.locals.usersession) {
+            return res.status(401).send('Unauthenticated');
+        } else {
+            return next();
+        }
+    });
 
     // PRIVATE ROUTES GO BELOW HERE
+    router.use('/posts', require('./posts')(APP_CONFIG));
 
     // Return middleware router
     return router;

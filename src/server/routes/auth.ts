@@ -18,48 +18,46 @@ module.exports = (APP_CONFIG: Config) => {
     router.post('/signup', (req, res) => {
         const body = req.body;
         if (!body || !body.Email || !body.Password) {
-            return res.status(400).send('Email and Password are required fields');
-        } else {
-            auth.signupWithPassword(body.Email, body.Password, 'argon2')
-            .pipe(
-                flatMap(userId => sessionManager.createSession(userId, JSON.stringify(res.useragent)))
-            )
-            .subscribe(
-                result => {
-                    res.cookie(APP_CONFIG.cookie_name, result.SessionKey, {...COOKIE_OPTIONS, expires: new Date(result.Expires * 1000), secure: req.secure});
-                    return res.send();
-                },
-                err => {
-                    logger.logError(err);
-                    res.status(400).send({Error: 'Could not complete signup'});
-                }
-            );
+            return res.status(400).send({Error: 'Email and Password are required fields'});
         }
+        if (!auth.validatePasswordCriteria(body.Password)) {
+            return res.status(400).send({Error: 'Password does not meet minimum criteria'});
+        }
+        auth.signupWithPassword(body.Email, body.Password, 'argon2')
+        .pipe(
+            flatMap(userId => sessionManager.createSession(userId, JSON.stringify(res.useragent)))
+        )
+        .subscribe(
+            result => {
+                res.cookie(APP_CONFIG.cookie_name, result.SessionKey, {...COOKIE_OPTIONS, expires: new Date(result.Expires * 1000), secure: req.secure});
+                return res.send();
+            },
+            err => res.status(err.Status).send({Error: 'Could not complete signup'})
+        );
     });
 
     router.post('/login', (req, res) => {
         const body = req.body;
         if (!body || !body.Email || !body.Password) {
-            return res.status(400).send('Email and Password are required fields');
-        } else {
-            auth.loginWithPassword(body.Email, body.Password, 'argon2')
-            .pipe(
-                switchMap(userId => sessionManager.createSession(userId, JSON.stringify(req.useragent)))
-            ).subscribe(
-                result => {
-                    res.cookie(APP_CONFIG.cookie_name, result.SessionKey, {...COOKIE_OPTIONS, expires: new Date(result.Expires * 1000), secure: req.secure});
-                    return res.send();
-                },
-                err => {
-                    if (err === 'Incorrect username or password') {
-                        return res.status(400).send({Error: 'Incorrect username or password'});
-                    } else {
-                        logger.logError(err);
-                        return res.status(500).send({Error: 'Could not login at this time'});
-                    }
-                }
-            )
+            return res.status(400).send({Error: 'Email and Password are required fields'});
         }
+        auth.loginWithPassword(body.Email, body.Password, 'argon2')
+        .pipe(
+            switchMap(userId => sessionManager.createSession(userId, JSON.stringify(req.useragent)))
+        ).subscribe(
+            result => {
+                res.cookie(APP_CONFIG.cookie_name, result.SessionKey, {...COOKIE_OPTIONS, expires: new Date(result.Expires * 1000), secure: req.secure});
+                return res.send();
+            },
+            err => {
+                if (err === 'Incorrect username or password') {
+                    return res.status(400).send({Error: 'Incorrect username or password'});
+                } else {
+                    logger.logError(err);
+                    return res.status(500).send({Error: 'Could not login at this time'});
+                }
+            }
+        );
     });
 
     router.get('/valid', (req, res) => {

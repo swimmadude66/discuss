@@ -127,7 +127,7 @@ if (cluster.isMaster) {
     const sessionManager = new SessionManager(db);
     APP_CONFIG.sessionManager = sessionManager;
     const cryptoService = new CryptoService();
-    const auth = new AuthService(cryptoService, db);
+    const auth = new AuthService(cryptoService, db, loggingService);
     APP_CONFIG.authService = auth;
 
     app.use(require('./middleware/auth')(APP_CONFIG));

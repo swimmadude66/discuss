@@ -1,15 +1,17 @@
 import {Observable, of, throwError, forkJoin} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {map, switchMap, catchError} from 'rxjs/operators';
 import * as uuid from 'uuid/v4';
 import {HashAlgorithm} from '../models/crypto';
 import {CryptoService} from './crypto';
 import {DatabaseService} from './db';
+import {LoggingService} from './logger';
 
 export class AuthService {
 
     constructor(
         private _crypto: CryptoService,
-        private _db: DatabaseService
+        private _db: DatabaseService,
+        private _logger: LoggingService,
     ) {}
 
     validatePasswordCriteria(password: string): boolean {
@@ -30,7 +32,14 @@ export class AuthService {
                 const q = 'Insert into `users` (`UserId`, `Email`, `PasswordHash`, `PasswordAlgorithm`) VALUES(?,?,?,?);';
                 return this._db.query(q, [userId, email, passHash, algorithm]);
             }),
-            map(_ => userId)
+            map(_ => userId),
+            catchError(err => {
+                if (err.Status && err.Error) {
+                    return throwError(err);
+                }
+                this._logger.logError(err);
+                return throwError({Status: 500, Error: 'Could not complete signup'});
+            })
         );
     }
     
@@ -39,7 +48,7 @@ export class AuthService {
         .pipe(
             switchMap(results => {
                 if (!results || results.length <  1) {
-                    return throwError('No User Found');
+                    return throwError({Status: 404, Error: 'No User Found'});
                 }
                 const authCheck = results[0];
                 return of(authCheck).pipe(
@@ -73,12 +82,19 @@ export class AuthService {
                     }),
                     switchMap(valid => {
                         if (!valid) {
-                            return throwError('Invalid Username or Password');
+                            return throwError({Status: 400, Error: 'Invalid Username or Password'});
                         } else {
                             return of(authCheck.UserId);
                         }
                     })
                 )
+            }),
+            catchError(err => {
+                if (err.Status && err.Error) {
+                    return throwError(err);
+                }
+                this._logger.logError(err);
+                return throwError({Status: 500, Error: 'Could not complete login'});
             })
         );
     }
@@ -92,9 +108,16 @@ export class AuthService {
             )),
             switchMap(([isValid, passHash]) => {
                 if (!isValid) {
-                    return throwError('Invalid Password');
+                    return throwError({Status: 400, Error: 'Invalid Password'});
                 }
                 return this._db.query<void>('Update `users` SET `PasswordHash`=?, `PasswordAlgorithm`=? Where `UserId`=?;', [passHash, algorithm, userId]);
+            }),
+            catchError(err => {
+                if (err.Status && err.Error) {
+                    return throwError(err);
+                }
+                this._logger.logError(err);
+                return throwError({Status: 500, Error: 'Could not password change'});
             })
         );
     }
