@@ -6,7 +6,7 @@ import {Toast} from '@models/shared/toast';
 import {ConnectionService, ToastService, WebviewService} from '@services/index';
 
 @Component({
-    selector: 'app',
+    selector: 'discuss-app',
     templateUrl: 'template.html',
     styleUrls: ['./styles.scss'],
     animations: [

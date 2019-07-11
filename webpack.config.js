@@ -200,7 +200,7 @@ const config = {
             hash: false,
             showErrors: false,
             excludeAssets: [/styles\..*js/i],
-            chunksSortMode: function(a,b) {
+            chunksSortMode: (a,b) => {
                 return bundles.findIndex(pattern => pattern.test(a.names[0])) - bundles.findIndex(pattern => pattern.test(b.names[0]));
             },
         }),
@@ -210,7 +210,8 @@ const config = {
         new AotPlugin({
             tsConfigPath: path.join(__dirname, './src/client/tsconfig.app.json'),
             mainPath: path.join(__dirname, './src/client/main.ts'),
-            typeChecking: false,
+            typeChecking: (process.env.BUILD_MODE === 'development'),
+            sourceMap: (process.env.BUILD_MODE === 'development'),
         }),
         new MiniCssExtractPlugin ({
             filename: '[name].[contenthash].min.css'
@@ -237,7 +238,7 @@ const config = {
                 to: path.join(__dirname, './dist/client/.well-known')
             }
         ]),
-        new NormalModuleReplacementPlugin(/environments\/environment/, function(resource) {
+        new NormalModuleReplacementPlugin(/environments\/environment/, (resource) => {
             resource.request = resource.request.replace(/environment$/, (process.env.BUILD_MODE === 'development' ? 'devEnvironment':'prodEnvironment'));
         }),
         new workbox.InjectManifest({

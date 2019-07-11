@@ -1,85 +1,39 @@
 @import '_variables';
 
-$wrapper-size: 0rem;
-$one-screen-size: 0rem;
- 
-.offline-banner {
-    background-color: $main-color;
-    height: $banner-height-xs;
-    @media(min-width: $screen-sm-min) {
-        height: $banner-height-sm;
-    }
-    @media(min-width: $screen-md-min) {
-        height: $banner-height;
-    }
-    .offline-text {
-        color: #000;
-        font-size: 1.6rem;
-        line-height: 2rem;
-        margin: 0;
-        padding: 0.5rem;
-        vertical-align: middle;
-        text-align: center;
-    }
-}
-
-.main {
+.window {
+    height: 100vh;
+    width: 100vw;
     display: flex;
-    flex-direction: row;
-    min-height: calc(100vh - #{$wrapper-size});
-    max-width: 100%;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    min-width: 100%;
+    min-height: 100%;
 
-    .wrapper {
-        flex: 0 0 100%;
-        max-width: 100%;
-        min-height: calc(100vh - #{$wrapper-size});
-    }
-    
-    &.offline {
-        min-height: calc(100vh - #{$wrapper-size + $banner-height-xs});
-        @media(min-width: $screen-sm-min) {
-            min-height: calc(100vh - #{$wrapper-size + $banner-height-sm});
-        }
-        @media(min-width: $screen-md-min) {
-            min-height: calc(100vh - #{$wrapper-size + $banner-height});
-        }
-
-        .wrapper {
-            min-height: calc(100vh - #{$wrapper-size + $banner-height-xs});
-            @media(min-width: $screen-sm-min) {
-                min-height: calc(100vh - #{$wrapper-size + $banner-height-sm});
-            }
-            @media(min-width: $screen-md-min) {
-                min-height: calc(100vh - #{$wrapper-size + $banner-height});
-            }
+    .offline-banner {
+        background-color: $main-color;
+        flex: 1 1 $banner-height;
+        .offline-text {
+            color: #000;
+            font-size: 1.6rem;
+            line-height: 2rem;
+            margin: 0;
+            padding: 0.5rem;
+            vertical-align: middle;
+            text-align: center;
         }
     }
 
-    @media (min-height: 65rem) {
-        min-height: calc(100vh - #{$one-screen-size});
-
-        .wrapper {
-            min-height: calc(100vh - #{$one-screen-size});
-        }
-
-        &.offline {
-            min-height: calc(100vh - #{$one-screen-size + $banner-height-xs});
-            @media(min-width: $screen-sm-min) {
-                min-height: calc(100vh - #{$one-screen-size + $banner-height-sm});
-            }
-            @media(min-width: $screen-md-min) {
-                min-height: calc(100vh - #{$one-screen-size + $banner-height});
-            }
+    .main {
+        width: 100%;
+        flex: 100 0 auto;
+        position: relative;
     
-            .wrapper {
-                min-height: calc(100vh - #{$one-screen-size + $banner-height-xs});
-                @media(min-width: $screen-sm-min) {
-                    min-height: calc(100vh - #{$one-screen-size + $banner-height-sm});
-                }
-                @media(min-width: $screen-md-min) {
-                    min-height: calc(100vh - #{$one-screen-size + $banner-height});
-                }
-            }
+        .wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
         }
     }
 }

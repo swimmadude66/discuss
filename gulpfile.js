@@ -1,5 +1,6 @@
 const {src, dest, series, watch, parallel} = require('gulp');
 const {join} = require('path');
+const {cpus} = require('os');
 const {spawn} = require('child_process');
 const webpack = require('webpack');
 const browserSync = require('browser-sync-webpack-plugin');
@@ -84,9 +85,11 @@ function watchWebpack(done) {
     process.env.BUILD_MODE = 'development';
     return webpack({
             ...config,
+            mode: 'development',
             watch: true,
             cache: true,
             bail: false,
+            parallelism: (cpus().length),
             devtool: 'eval-source-map',
             plugins: [
                 ...config.plugins || [],

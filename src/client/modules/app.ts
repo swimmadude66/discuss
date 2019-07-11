@@ -11,7 +11,7 @@ import {IsLoggedInGuard, NotLoggedInGuard} from '@guards/index'
         AppComponent
     ],
     imports: [
-        BrowserModule.withServerTransition({appId: 'demowebapp'}),
+        BrowserModule.withServerTransition({appId: 'discuss'}),
         BrowserAnimationsModule,
         SharedModule,
         BrowserTransferStateModule,
