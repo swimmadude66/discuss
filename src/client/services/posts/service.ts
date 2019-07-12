@@ -33,14 +33,16 @@ export class PostsService {
     }
 
     createPost(title: string, body: string): Observable<Post> {
+        this._cache.invalidateCachePattern(/feed_.*/i);
         return this._http.post<Post>('/api/posts', {Title: title, Body: body});
     }
 
     createReply(rootId: string, parentId: string, body: string): Observable<Reply> {
+        this._cache.invalidateCache(`post_${parentId}`);
         return this._http.post<Reply>(`/api/posts/${parentId}/reply`, {RootId: rootId, Body: body});
     }
 
     voteForPost(postId: string, score: number): Observable<any> {
-        return this._http.post<any>(`/api/posts/${postId}/vote`, {Score: score});
+        return this._http.put<any>(`/api/posts/${postId}/vote`, {Score: score});
     }
 }

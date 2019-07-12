@@ -1,0 +1,15 @@
+<div class="container">
+    <div class="row size-limited">
+        <div class="col-xs-12">
+            <h1>
+                New Discussion
+            </h1>
+        </div>
+    </div>
+
+    <div class="row size-limited">
+        <div class="col-xs-12">
+            <post-form type="post" [resetSubject]="resetSubject" (result)="createPost($event)"></post-form>
+        </div>
+    </div>
+</div>

@@ -1,16 +1,15 @@
 <div class="card">
     <div class="votes">
-        <p class="vote-count">
-            {{post?.Votes}}
-        </p>
+        <vote-block [postId]="post?.PostId" [voteCount]="post?.Score" [yourVote]="post?.YourVote"></vote-block>
     </div>
     <div class="content">
         <p class="post-title">
             {{post?.Title}}
         </p>
         <p class="post-body">
-            {{post?.Body}}
+            {{post?.Body | shorten:80}}
         </p>
-        <a class="view-replies" [routerLink]="['/posts/', post?.PostId]">view replies</a>
+        <span class="timeago">{{post?.PostDate | timeago}}</span>
+        <a class="view-replies" [routerLink]="['/', post?.PostId]">view discussion</a>
     </div>
 </div>

@@ -1,0 +1,22 @@
+<div class="form-container">
+    <form [formGroup]="form">
+        <input-group
+            id="txtTitle"
+            type="text"
+            name="title"
+            [formControl]="titleControl"
+            label="Title"
+            placeholder="Post Title"
+            autocomplete="off"
+            *ngIf="!isReply"
+        >
+        </input-group>
+        <textarea id="post-body" class="post-body" name="body" [formControl]="bodyControl" [readonly]="isLoading"></textarea>
+    
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isLoading">
+            <ng-container *ngIf="!isReply">Create Post</ng-container>
+            <ng-container *ngIf="isReply">Submit Reply</ng-container>
+        </button>
+    </form>
+</div>
+

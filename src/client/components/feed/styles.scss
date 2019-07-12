@@ -1,6 +1,18 @@
 @import '_variables';
 
-.card-container {
-    flex: 1 1 auto;
-    padding: 1rem;
+.create-row {
+    text-align: right;
+    .create-link {
+        text-decoration: none;
+    }
+}
+
+.feed-container {
+    max-width: 80rem;
+    margin: 0 auto;
+
+    .card-container {
+        flex: 1 1 auto;
+        padding: 1rem;
+    }
 }

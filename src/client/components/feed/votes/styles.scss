@@ -1,0 +1,53 @@
+@import '_variables';
+
+.vote-block {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    justify-items: center;
+    padding: 1rem 0;
+
+    .arrow-container {
+        flex: 1 1 1rem;
+        cursor: pointer;
+
+        .arrow {
+            fill: $disabled-text;
+            max-width: 2rem;
+            display: block;
+            margin: auto;
+        }
+    }
+
+    .vote-count {
+        flex: 1 1 2rem;
+        font-size: 1.6rem;
+        color: $disabled-text;
+        line-height: 2rem;
+        margin: 0;
+        text-align: center;
+    }
+
+    &.upped {
+        .up-arrow-container {
+            .arrow {
+                fill: $main_color;
+            }
+        }
+        .vote-count {
+            color: $main_color;
+        }
+    }
+
+    &.downed {
+        .down-arrow-container {
+            .arrow {
+                fill: $error_color;
+            }
+        }
+        .vote-count {
+            color: $error_color;
+        }
+    }
+}

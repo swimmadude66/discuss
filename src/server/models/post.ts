@@ -2,10 +2,11 @@ export interface BasePost {
     PostId: string; // Id of post/comment
     PosterId: string; // userId of poster
     PostDate: Date;
-    Votes: number;
+    Score: number;
     Body: string;
     Type: PostType;
     Replies?: Reply[];
+    YourVote?: number;
 }
 
 export type PostType = 'post' | 'reply';

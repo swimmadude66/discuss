@@ -1,0 +1,13 @@
+<div class="vote-block" [ngClass]="{'upped': yourVote===1, 'downed': yourVote===-1}">
+    <div class="arrow-container up-arrow-container" (click)="vote(1)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="arrow" viewBox="0 0 306 306">
+            <path d="M36 247l117-117 117 117 36-35L153 59 0 212z"/>
+        </svg>
+    </div>
+    <p class="vote-count">{{voteCount}}</p>
+    <div class="arrow-container down-arrow-container" (click)="vote(-1)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="arrow" viewBox="0 0 306 306">
+            <path d="M153 176L270 59l36 35-153 153L0 94l36-35z"/>
+        </svg>
+    </div>
+</div>

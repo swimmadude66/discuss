@@ -86,7 +86,7 @@ module.exports = (APP_CONFIG: Config) => {
         )
     });
 
-    router.put('/:postId/reply', (req, res) => {
+    router.post('/:postId/reply', (req, res) => {
         const usersession: UserSession = res.locals.usersession;
         if (!usersession || !usersession.UserId) {
             return res.status(401).send({Error: 'Not logged in'});

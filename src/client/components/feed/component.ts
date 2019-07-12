@@ -1,7 +1,10 @@
 import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+import {of} from 'rxjs';
+import {catchError} from 'rxjs/operators';
 import {SubscriberComponent} from '@core/index';
 import {PostsService} from '@services/posts/service';
-import {ToastService} from '@services/index';
+import {ToastService, AuthService} from '@services/index';
 import {Post} from '@models/post';
 
 @Component({
@@ -15,7 +18,9 @@ export class FeedComponent extends SubscriberComponent implements OnInit {
     
     constructor(
         private _postService: PostsService,
-        private _toast: ToastService
+        private _auth: AuthService,
+        private _toast: ToastService,
+        private _router: Router
     ) {
         super();
     }
@@ -31,6 +36,18 @@ export class FeedComponent extends SubscriberComponent implements OnInit {
                     this._toast.error('Could not load posts', 'There was a problem!');
                     throw err;
                 }
+            )
+        );
+    }
+
+    logOut() {
+        this.addSubscription(
+            this._auth.logOut()
+            .pipe(
+                catchError(e => of(true))
+            )
+            .subscribe(
+                _ => this._router.navigate(['/login'])
             )
         );
     }

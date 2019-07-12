@@ -5,7 +5,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {InputGroupComponent} from '@components/inputgroup/component';
 import {ToastComponent} from '@components/toast/component';
-import {ShortenTextPipe, FloorNumberPipe} from '@pipes/index';
+import {ShortenTextPipe, FloorNumberPipe, TimeagoPipe} from '@pipes/index';
 import {AltTextDirective, ExternalLinkDirective} from '@directives/index';
 
 @NgModule({
@@ -19,6 +19,7 @@ import {AltTextDirective, ExternalLinkDirective} from '@directives/index';
         InputGroupComponent,
         ToastComponent,
         ShortenTextPipe,
+        TimeagoPipe,
         FloorNumberPipe,
         AltTextDirective,
         ExternalLinkDirective,
@@ -33,6 +34,7 @@ import {AltTextDirective, ExternalLinkDirective} from '@directives/index';
         InputGroupComponent,
         ToastComponent,
         ShortenTextPipe,
+        TimeagoPipe,
         FloorNumberPipe,
         AltTextDirective,
         ExternalLinkDirective,

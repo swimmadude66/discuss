@@ -3,7 +3,7 @@
 .card {
     width: 100%;
     display: flex;
-    border: 0.1rem solid $divider-color;
+    border-bottom: 0.1rem solid $divider-color;
     align-content: center;
 
     .votes {
@@ -32,7 +32,21 @@
             line-height: 2rem;
             padding: 0;
             margin: 0;
+            color: $almost-black;
+        }
+
+        .timeago {
+            font-size: 1.4rem;
+            line-height: 2rem;
+            margin: 0 1rem 0 0;
+            padding: 0;
             color: $disabled-text;
+        }
+
+        .view-replies {
+            font-size: 1.6rem;
+            line-height: 2rem;
+            margin: 0 0 0 1rem;
         }
     }
 }

@@ -1,0 +1,15 @@
+@import '_variables';
+
+.form-container {
+    width: 100%;
+
+    form {
+        width: 100%;
+
+        #post-body {
+            min-height: 10rem;
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+    }
+}

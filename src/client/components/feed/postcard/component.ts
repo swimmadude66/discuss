@@ -8,31 +8,10 @@ import {PostsService, ToastService} from '@services/index';
     templateUrl: './template.html',
     styleUrls: ['./styles.scss']
 })
-export class PostCardComponent extends SubscriberComponent {
+export class PostCardComponent {
 
     @Input('post') post: Post;
     
-    constructor(
-        private _posts: PostsService,
-        private _toast: ToastService
-    ) {
-        super();
-    }
-
-    vote(score: (-1|0|1)): void {
-        this.addSubscription(
-            this._posts.voteForPost(this.post.PostId, score)
-            .subscribe(
-                _ => {
-                    this.post.YourVote = score;
-                    this.post.Votes += score;
-                },
-                err => {
-                    this._toast.error(err.Error);
-                    throw err;
-                }
-            )
-        );
-    }
+    constructor() {}
 
 }

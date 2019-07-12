@@ -1,0 +1,39 @@
+<div class="container">
+    <div class="row size-limited post-row">
+        <div class="votes">
+            <vote-block [postId]="post?.PostId" [voteCount]="post?.Score" [yourVote]="post?.YourVote"></vote-block>
+        </div>
+        <div class="content">
+            <p class="post-title">
+                {{post?.Title}}
+            </p>
+            <p class="post-body">
+                {{post?.Body}}
+            </p>
+            <span class="timeago">{{post?.PostDate | timeago}}</span>
+        </div>
+    </div>
+
+    <div class="row size-limited form-row">
+        <div class="reply-form-container">
+            <p class="reply-text">
+                Leave a reply:
+            </p>
+            <post-form type="reply" [resetSubject]="resetSubject" (result)="addReply($event)"></post-form>
+        </div>
+    </div>
+
+    <hr class="size-limited" />
+
+    <div class="row size-limited reply-row" *ngFor="let reply of post?.Replies;">
+        <div class="votes">
+            <vote-block [postId]="reply?.PostId" [voteCount]="reply?.Score" [yourVote]="reply?.YourVote"></vote-block>
+        </div>
+        <div class="content">
+            <p class="post-body">
+                {{reply?.Body}}
+            </p>
+            <span class="timeago">{{post?.PostDate | timeago}}</span>
+        </div>
+    </div>
+</div>

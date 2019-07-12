@@ -5,7 +5,6 @@ import { Post, Reply, BasePost} from '../models/post';
 import {DatabaseService} from './db';
 import {LoggingService} from './logger';
 
-type PostWithVote = Post & {YourVote: number};
 
 export class PostService {
     constructor(
@@ -13,7 +12,7 @@ export class PostService {
         private _logger: LoggingService
     ) {}
 
-    createPost(userId: string, title: string, body: string): Observable<PostWithVote> {
+    createPost(userId: string, title: string, body: string): Observable<Post> {
         if (!userId.length || !title.length || !body.length) {
             return throwError({Status: 400, Error: 'UserId, Title, and Body are required'});
         }
@@ -33,14 +32,14 @@ export class PostService {
                 );
             }),
             map(_ => {
-                const post: PostWithVote = {
+                const post: Post = {
                     Type: 'post',
                     PostId: postId,
                     PosterId: userId,
                     Title: title,
                     Body: body,
                     PostDate: new Date(),
-                    Votes: 0,
+                    Score: 0,
                     Replies: [],
                     YourVote: 1
                 };
@@ -57,7 +56,7 @@ export class PostService {
         if (!postId.length || !userId.length || !title.length || !body.length) {
             return throwError({Status: 400, Error: 'PostId, UserId, Title, and Body are required'});
         }
-        const q  = 'Update `posts` SET `Title`=?, `Body`=?) WHERE PostId=? AND PosterId=?;';
+        const q  = 'Update `posts` SET `Title`=?, `Body`=? WHERE PostId=? AND PosterId=?;';
         return this._db.query(q, [title, body, postId, userId])
         .pipe(
             map(_ => {
@@ -68,7 +67,7 @@ export class PostService {
                     Title: title,
                     Body: body,
                     PostDate: new Date(),
-                    Votes: 0,
+                    Score: 0,
                     Replies: []
                 };
                 return post;
@@ -85,7 +84,7 @@ export class PostService {
             return throwError({Status: 400, Error: 'ParentId, UserId, and Body are required'});
         }
         const postId = uuid();
-        return this._db.query<{PostId: string, Score: number}[]>('Select `PostId`, `Score` from `post_votes` Where `PostId` in (?) && `VoterId`=?;', [[parentId, rootId], userId])
+        return this._db.query<{PostId: string, Score: number}[]>('Select `PostId`, `Score` from `post_votes` Where `PostId` in (?) AND `VoterId`=?;', [[parentId, rootId], userId])
         .pipe(
             switchMap(scores => {
                 if (!scores || scores.length < 1) {
@@ -96,8 +95,21 @@ export class PostService {
                 if (!root || !parent || !parent.Score || !root.Score || root.Score !== 1 || parent.Score !== 1) {
                     return throwError({Status: 400, Error: 'You must upvote this post and this reply to continue the discussion'});
                 }
-                const q  = 'Insert into `posts` (`PostId`, `PosterId`, `Body`, `ParentId`) VALUES (?,?,?,?,?);';
-                return this._db.query(q, [postId, userId, body, parentId])
+                const createQ  = 'Insert into `posts` (`PostId`, `PosterId`, `Body`, `ParentId`, `RootId`) VALUES (?,?,?,?, ?);';
+                const voteQ = 'Insert into `post_votes` (`PostId`, `VoterId`, `Score`) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `Score`=VALUES(`Score`);';
+                return this._db.getConnection()
+                .pipe(
+                    switchMap(conn => {
+                        return this._db.beginTransaction(conn)
+                        .pipe(
+                            switchMap(_ => this._db.connectionQuery(conn, createQ, [postId, userId, body, parentId, rootId])),
+                            switchMap(_ => this._db.connectionQuery(conn, voteQ, [postId, userId, 1])),
+                            switchMap(_ => this._db.connectionCommit(conn)),
+                            catchError(err => this._db.connectionRollback(conn).pipe(switchMap(_ => throwError(err)))),
+                            tap(_ => conn.release(), err=> conn.release())
+                        );
+                    })
+                );
             }),
             map(_ => {
                 const post: Reply = {
@@ -108,7 +120,8 @@ export class PostService {
                     RootId: rootId,
                     Body: body,
                     PostDate: new Date(),
-                    Votes: 0,
+                    Score: 1,
+                    YourVote: 1,
                     Replies: []
                 };
                 return post;
@@ -146,7 +159,7 @@ export class PostService {
         );
     }
 
-    getPosts(userId: string, limit: number = 25, page: number = 0): Observable<PostWithVote[]> {
+    getPosts(userId: string, limit: number = 25, page: number = 0): Observable<Post[]> {
         const q = 'Select p.*, pr.Score from `postrank` pr join `posts` p on pr.`PostId`=p.`PostId` Where p.`ParentId` is null ORDER BY pr.Rank DESC, pr.Score DESC LIMIT ? OFFSET ?;';
         return this._db.query<Post[]>(q, [limit, (page * limit)])
         .pipe(
@@ -157,7 +170,7 @@ export class PostService {
                     PosterId: r.PosterId,
                     PostDate: r.PostDate,
                     Title: r.Title,
-                    Votes: (r as any).Score,
+                    Score: (r as any).Score,
                     Body: r.Body,
                 };
                 return post;
@@ -172,10 +185,10 @@ export class PostService {
                             prev[curr.PostId] = curr.Score || 0;
                             return prev;
                         }, {});
-                        const postsWithVotes: PostWithVote[] = posts.map(p => {
-                            const pv: PostWithVote = {
+                        const postsWithVotes: Post[] = posts.map(p => {
+                            const pv: Post = {
                                 ...p,
-                                YourVote: voteRecord[p.PostId]
+                                YourVote: voteRecord[p.PostId] || 0
                             }
                             return pv;
                         });
@@ -193,8 +206,8 @@ export class PostService {
         );
     }
 
-    getPost(postId: string, userId: string): Observable<PostWithVote> {
-        const q = 'Select p.*, ps.`Score` as Score from `postscore` ps join `posts` p on p.`PostId`=ps.`PostId` Where (p.`PostId`=? OR p.`RootId`=?) LIMIT 1;';
+    getPost(postId: string, userId: string): Observable<Post> {
+        const q = 'Select p.*, ps.`Score` as Score from `postscore` ps join `posts` p on p.`PostId`=ps.`PostId` Where (p.`PostId`=? OR p.`RootId`=?);';
         return this._db.query<BasePost[]>(q, [postId, postId])
         .pipe(
             switchMap(results => {
@@ -205,27 +218,20 @@ export class PostService {
                 if (!rootPost) {
                     return throwError({Status: 404, Error: 'Cannot find post'});
                 }
-                rootPost.Replies = this._mapReplyTree((results as Reply[]), rootPost.PostId)
-                return this._db.query<{Score: number}[]>('Select `Score` from `post_votes` WHERE `PostId`=? AND `VoterId`=?;', [postId, userId])
+                const postIds = results.map(p => p.PostId);
+                const yourScoreQ = 'Select `PostId`, `Score` from `post_votes` Where `VoterId`=? AND `PostId` in (?);'
+                return this._db.query<{PostId: string, Score: number}[]>(yourScoreQ, [userId, postIds])
                 .pipe(
                     map(votes => {
-                        if (!votes || votes.length < 1) {
-                            votes = [{Score: 0}];
-                        }
-                        const yourVote = votes[0].Score;
-                        const post: PostWithVote = {
-                            Type: 'post',
-                            PostId: rootPost.PostId,
-                            PosterId: rootPost.PosterId,
-                            PostDate: rootPost.PostDate,
-                            Title: rootPost.Title,
-                            Votes: (rootPost as any).Score,
-                            Body: rootPost.Body,
-                            Replies: rootPost.Replies,
-                            YourVote: yourVote
-                        };
-                        return post;
-                    }),
+                        const voteRecord = votes.reduce((prev, curr) => {
+                            prev[curr.PostId] = curr.Score || 0;
+                            return prev;
+                        }, {});
+                        results.forEach(r => r.YourVote = voteRecord[r.PostId] || 0);
+                        rootPost.YourVote = voteRecord[rootPost.PostId] || 0;
+                        rootPost.Replies = this._mapReplyTree((results as Reply[]), rootPost.PostId);
+                        return rootPost;
+                    })
                 );
             }),
             catchError(err => {

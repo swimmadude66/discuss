@@ -3,11 +3,11 @@ export interface BasePost {
     PosterId: string; // userId of poster
     Title: string;
     PostDate: Date;
-    Votes: number;
+    Score: number;
     Body: string;
     Type: PostType;
     Replies?: Reply[];
-    YourVote?: number;
+    YourVote?: (-1|0|1);
 }
 
 export type PostType = 'post' | 'reply';
